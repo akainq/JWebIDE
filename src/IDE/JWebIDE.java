@@ -253,7 +253,7 @@ public class JWebIDE extends javax.swing.JFrame {
                     return;
                 }
                 
-        if( (evt.getKeyChar()+"").matches("[\\n]")!=true){
+        if( (evt.getKeyChar()+"").matches("[\\n\\s]")!=true){
             try {
 
                 
