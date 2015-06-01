@@ -5,9 +5,7 @@
  */
 package IDE;
 
-import IDE.autocomplite.AutoSuggestor;
 import IDE.autocomplite.AutocompliteContextFrame;
-import IDE.autocomplite.AutoTextComplete;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
@@ -18,8 +16,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -58,9 +54,8 @@ public class JWebIDE extends javax.swing.JFrame {
         Pattern functionCall = Pattern.compile("\\b([\\w]+)\\s*\\(");
         Pattern brackets = Pattern.compile("\\{|\\}|\\(|\\)|\\[|\\]");
         Pattern numbers = Pattern.compile("\\b((?:(\\d+)?\\.)?[0-9]+|0x[0-9A-F]+)\\b");
-       AutocompliteContextFrame autoCompliteFrame = new AutocompliteContextFrame(this);
-        AutoTextComplete autoTextComplete ;
-        AutoSuggestor autoSuggestor;
+        AutocompliteContextFrame autoCompliteFrame;
+   
 
 
          StyledDocument doc = null;
@@ -77,6 +72,7 @@ public class JWebIDE extends javax.swing.JFrame {
         linePainter = new LinePainter(jTextPane1);
         this.jScrollPane3.setRowHeaderView(textLineNumber);
         // autoTextComplete = new  AutoTextComplete(jTextPane1);
+        autoCompliteFrame = new AutocompliteContextFrame(jTextPane1);
         painter = new DefaultHighlighter();
        
                 
@@ -84,14 +80,7 @@ public class JWebIDE extends javax.swing.JFrame {
         setTabs(jTextPane1,3);
         document = jTextPane1.getDocument();
         document.addDocumentListener(new EditorChangeListener(doc, jLabel1));
-       // this.jPopupMenu1.add(new jPopupMenu1)
-        //autoCompliteFrame.setModal(false);
-        //this.autoCompliteFrame.actionPerformed(new ActionEvent(){});
-        
-     linePainter.setLighter(new Color(176,197,227));    
-  
-
- 
+        linePainter.setLighter(new Color(176,197,227));     
     }
 
      public void setTabs( JTextPane textPane, int charactersPerTab)
@@ -230,7 +219,7 @@ public class JWebIDE extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
         try {
-            jTextPane1.setText(readServerFile(new File("c:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
+            jTextPane1.setText(readServerFile(new File("e:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
 
         } catch (IOException ex) {
             Logger.getLogger(JWebIDE.class.getName()).log(Level.SEVERE, null, ex);
@@ -244,7 +233,6 @@ public class JWebIDE extends javax.swing.JFrame {
         if(!DebugMode){
         
              this.linePainter.setLighter(new Color(255,168,168));
-            // this.linePainter.setColor(Color.BLACK);
              DebugMode = true;
         } else{
                   linePainter.setLighter(new Color(176,197,227));  
@@ -255,32 +243,23 @@ public class JWebIDE extends javax.swing.JFrame {
 
     private void jTextPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextPane1KeyPressed
         
-      //  autoTextComplete.setItems(JavaScriptLexer.getKeywords());
+ 
        
-        
-        if( (evt.getKeyChar()+"").matches("\\b") ||(evt.getKeyCode() == KeyEvent.VK_DOWN) ){
-            try {
-                // TODO add your handling code here:
-                
-                String val = "";
-                if((evt.getKeyCode() == KeyEvent.VK_DOWN)&& autoCompliteFrame.isVisible()){
-                    
-                    
-                    //     autoCompliteFrame.setVisible(false);
-                    autoCompliteFrame.setFocusableWindowState(true);
-                    autoCompliteFrame.setFocusable(true);
-                    autoCompliteFrame.setAutoRequestFocus(true);
-                    autoCompliteFrame.requestFocusInWindow();
-                    autoCompliteFrame.GetFocusList(jTextPane1);
-                    autoCompliteFrame.setVisible(true);
-                    
-                    
+                if(((evt.getKeyCode() == KeyEvent.VK_DOWN)||
+                    (evt.getKeyCode() == KeyEvent.VK_UP)||
+                    (evt.getKeyCode() == KeyEvent.VK_ESCAPE)||
+                    (evt.getKeyCode() == KeyEvent.VK_ENTER))&& autoCompliteFrame.isVisible()){             
+                    evt.consume();
+                    return;
                 }
                 
+        if( (evt.getKeyChar()+"").matches("[\\n]")!=true){
+            try {
+
                 
                 int pos = jTextPane1.getCaretPosition();
                 if(pos==0) {
-                    evt.consume();
+                   // evt.consume();
                     return;
                 };
                 int wordStart = Utilities.getPreviousWord(jTextPane1,pos );
@@ -306,18 +285,18 @@ public class JWebIDE extends javax.swing.JFrame {
                 }
                 
                 if(isRes){
-                    Rectangle r  = jTextPane1.modelToView( jTextPane1.getCaretPosition());
+                    Rectangle r  = jTextPane1.modelToView( wordStart);
                     Rectangle r2 =  this.getBounds();
                     Rectangle r3 =  this.jScrollPane3.getBounds();
-                    // autoCompliteFrame.setLocationRelativeTo(this);
-                    autoCompliteFrame.setBounds(r.x+r2.x+r3.x, r.y+r2.y+r3.y+50, 250, 200);
-                    //   autoCompliteFrame.setFocusable(true);
-                    //   autoCompliteFrame.setAlwaysOnTop(true);
+                    autoCompliteFrame.setVisible(false);
+                    autoCompliteFrame.setFocusable(true);
+                    autoCompliteFrame.requestFocusInWindow();
+                    autoCompliteFrame.setBounds(r.x+r2.x+r3.x+30, r.y+r2.y+r3.y+50, 230, 150);                
                     autoCompliteFrame.setVisible(true);
-                    
+                    autoCompliteFrame.initTableSelection();
                     
                     // autoCompliteFrame.setAlwaysOnTop(true);
-                    evt.consume();
+                  //  evt.consume();
                 }
                 
             } catch (BadLocationException ex) {
