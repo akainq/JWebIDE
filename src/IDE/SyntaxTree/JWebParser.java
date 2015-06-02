@@ -5,9 +5,18 @@
  */
 package IDE.SyntaxTree;
 
+import IDE.SyntaxTree.ASyntaxTree.STNode;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Array;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.swing.tree.DefaultMutableTreeNode;
+import jdk.nashorn.api.scripting.NashornScriptEngine;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import jdk.nashorn.internal.ir.FunctionNode;
 import jdk.nashorn.internal.objects.Global;
 import jdk.nashorn.internal.runtime.Context;
@@ -27,10 +36,11 @@ public class JWebParser {
      StringWriter ErrorWriter = new StringWriter();
      ErrorManager em = new ErrorManager();
      ScriptEnvironment env;
+     String strSource;
     
     public JWebParser(String source) {
  
-      
+      strSource = source;
  
          Options opt = new Options("nashorn");
              opt.set("anon.functions", true);
@@ -49,19 +59,75 @@ public class JWebParser {
         
     }
     
+    public JWebParser(){}
     
     public FunctionNode parse(){
-    
-      //  LexicalContext lc = new LexicalContext();
-        
+ 
       return nashornParser.parse();
-    
-   
-     //  Logger.logMsg(Level.ALL.intValue(), fNode.getCompileUnit());
+ 
        
     }
+        
+    public DefaultMutableTreeNode createObjectTree(String src){
+         try {
+             ScriptEngineManager engineManager =   new ScriptEngineManager();
+             NashornScriptEngine engine =  (NashornScriptEngine) engineManager.getEngineByName("nashorn");
+             engine.eval("load(\"nashorn:parser.js\")");
+             ScriptObjectMirror sss =  (ScriptObjectMirror) engine.invokeFunction("parse", src);
+             ScriptObjectMirror RootBody =  (ScriptObjectMirror) ((ScriptObjectMirror)sss.get("body")).get("0");
+             
+             DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");             
+             getTree(RootBody,0,root);
+             
+             return  root;
+         } catch (ScriptException | NoSuchMethodException ex) {
+             Logger.getLogger(JWebParser.class.getName()).log(Level.SEVERE, null, ex);
+         }
+         return null;
+    }
+    
 
- 
+    public void getTree(ScriptObjectMirror node , int deep, DefaultMutableTreeNode rootNode){
+  
+             ScriptObjectMirror  child_scriptObjectMirror = null;
+         
+             for(String key: node.keySet()){
+                      
+                    Object scriptObjectMirror =  node.get(key);
+                    Object type =  node.get("type");
+                    String tree = "";
+                    //for(int i=1; i<deep;i++) tree+="\t";
+                    
+                   //
+                  //  System.out.println( tree+" "+key+" "+scriptObjectMirror);
+                   DefaultMutableTreeNode child = new DefaultMutableTreeNode(); 
+                         if("Identifier".equals(type)||"FunctionExpression".equals(type)||"ThisExpression".equals(type)) { 
+                             
+                             child.setUserObject(scriptObjectMirror);      
+                              
+                             rootNode.add(child);
+                             continue;
+                       }
+                         
+                    if((scriptObjectMirror!=null)&&((scriptObjectMirror.getClass() == Object.class)||
+                                                    (scriptObjectMirror.getClass() == ScriptObjectMirror.class)||
+                                                    (scriptObjectMirror.getClass() == Array.class))){
+                        
+                        if(scriptObjectMirror.getClass() == ScriptObjectMirror.class){                                                    
+                            getTree((ScriptObjectMirror) ((ScriptObjectMirror)scriptObjectMirror), deep++,child);                           
+                         }
+                          else
+                         {                        
+                            getTree((ScriptObjectMirror)scriptObjectMirror, deep++,child); 
+                         }
+                    }             
+                 
+                        
+               }
+             
+             
+       }
+    
     
   
 }

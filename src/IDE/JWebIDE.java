@@ -5,6 +5,9 @@
  */
 package IDE;
 
+import IDE.SyntaxTree.ASyntaxTree;
+import IDE.SyntaxTree.ASyntaxTree.STNode;
+import IDE.SyntaxTree.JWebParser;
 import IDE.autocomplite.AutocompliteContextFrame;
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -20,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.JTextPane;
+import javax.swing.SwingWorker;
 import javax.swing.text.AbstractDocument.BranchElement;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
@@ -32,6 +36,11 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 import javax.swing.text.Utilities;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 import sun.nio.ch.DirectBuffer;
 
 /**
@@ -55,7 +64,7 @@ public class JWebIDE extends javax.swing.JFrame {
         Pattern brackets = Pattern.compile("\\{|\\}|\\(|\\)|\\[|\\]");
         Pattern numbers = Pattern.compile("\\b((?:(\\d+)?\\.)?[0-9]+|0x[0-9A-F]+)\\b");
         AutocompliteContextFrame autoCompliteFrame;
-   
+       JWebParser jwebNashornParser = new JWebParser();
 
 
          StyledDocument doc = null;
@@ -142,6 +151,8 @@ public class JWebIDE extends javax.swing.JFrame {
             }
         });
 
+        jScrollPane3.setDoubleBuffered(true);
+
         jTextPane1.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jTextPane1CaretUpdate(evt);
@@ -153,10 +164,10 @@ public class JWebIDE extends javax.swing.JFrame {
             }
         });
         jTextPane1.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-            }
             public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
                 jTextPane1CaretPositionChanged(evt);
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         jTextPane1.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -178,22 +189,21 @@ public class JWebIDE extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 710, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(20, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 436, Short.MAX_VALUE)
                         .addComponent(jLabel2)
-                        .addGap(31, 31, 31))))
+                        .addGap(31, 31, 31))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane3)
+                        .addContainerGap())))
             .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -219,7 +229,8 @@ public class JWebIDE extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
         try {
-            jTextPane1.setText(readServerFile(new File("e:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
+            jTextPane1.setText(readServerFile(new File("c:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
+                   updateTree();
 
         } catch (IOException ex) {
             Logger.getLogger(JWebIDE.class.getName()).log(Level.SEVERE, null, ex);
@@ -241,9 +252,29 @@ public class JWebIDE extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jTextPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextPane1KeyPressed
+    private void updateTree(){
         
  
+               String srcText = jTextPane1.getText();
+                if(!srcText.equals("")){
+                    
+                     DefaultMutableTreeNode objectTree = jwebNashornParser.createObjectTree(srcText);                                       
+                     DefaultTreeModel treeModel = new DefaultTreeModel(objectTree);      
+                     jTree1.setVisible(false);
+                     jTree1.setModel(treeModel);
+                     jTree1.revalidate();
+                     jTree1.repaint();
+                     ((DefaultTreeModel) jTree1.getModel()).reload();
+                      jTree1.setVisible(true);
+                  
+                }
+                   
+    }
+    
+    private void jTextPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextPane1KeyPressed
+        
+                   updateTree();
+           
        
                 if(((evt.getKeyCode() == KeyEvent.VK_DOWN)||
                     (evt.getKeyCode() == KeyEvent.VK_UP)||

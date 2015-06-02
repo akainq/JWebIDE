@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jdk.nashorn.internal.codegen.CompileUnit;
+import jdk.nashorn.internal.codegen.CompilerConstants;
 import jdk.nashorn.internal.codegen.Label;
 import jdk.nashorn.internal.ir.FunctionNode;
 import jdk.nashorn.internal.ir.IdentNode;
@@ -83,7 +84,7 @@ public class ParserTest {
     public void testParse() {
         try {
 
-            String input = readServerFile(new File("e:\\Projects\\JWeb\\www\\Controller\\indexController.jap"));
+            String input = readServerFile(new File("c:\\Projects\\JWeb\\www\\Controller\\indexController.jap"));
             ExpNode expResult = null;
             JWebParser result = new  JWebParser(input);
             FunctionNode fNode = result.parse();
@@ -113,6 +114,7 @@ public class ParserTest {
                 
                   } else 
                   {
+                       
                         System.out.println(((IdentNode)functionNode.getIdent().accept(this)).getName());
                   }
               }
