@@ -5,21 +5,15 @@
  */
 package IDE.SyntaxTree;
 
-import com.sun.glass.ui.Window;
-import com.sun.media.jfxmedia.logging.Logger;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
-import java.util.logging.Level;
-import static javafx.scene.input.KeyCode.T;
+import java.util.Optional;
 import jdk.nashorn.internal.ir.FunctionNode;
-import jdk.nashorn.internal.ir.LexicalContext;
-import jdk.nashorn.internal.ir.visitor.NodeVisitor;
+import jdk.nashorn.internal.objects.Global;
+import jdk.nashorn.internal.runtime.Context;
 import jdk.nashorn.internal.runtime.ErrorManager;
 import jdk.nashorn.internal.runtime.ScriptEnvironment;
 import jdk.nashorn.internal.runtime.Source;
-import jdk.nashorn.internal.runtime.options.OptionTemplate;
 import jdk.nashorn.internal.runtime.options.Options;
 
 /**
@@ -36,12 +30,22 @@ public class JWebParser {
     
     public JWebParser(String source) {
  
-          Source textSource =   Source.sourceFor("mySource", source);
+      
  
-         Options opt = new Options("");
-          env = new ScriptEnvironment(opt, new PrintWriter(OutWriter), new PrintWriter(ErrorWriter) );
+         Options opt = new Options("nashorn");
+             opt.set("anon.functions", true);
+          //   opt.set("parse.only", true);
+             opt.set("scripting", true);
+             
+          Context context = new Context(opt, em, Thread.currentThread().getContextClassLoader());
+          Context.setGlobal(new Global( context ));
+          Source textSource =   Source.sourceFor("mySource", source);
           
+          env = context.getEnv();//new ScriptEnvironment(opt, new PrintWriter(OutWriter), new PrintWriter(ErrorWriter) );
+                                        
          nashornParser =  new jdk.nashorn.internal.parser.Parser(env,textSource,em);   
+     
+	
         
     }
     

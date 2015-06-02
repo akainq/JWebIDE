@@ -12,12 +12,20 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jdk.nashorn.internal.codegen.CompileUnit;
+import jdk.nashorn.internal.codegen.Label;
 import jdk.nashorn.internal.ir.FunctionNode;
+import jdk.nashorn.internal.ir.IdentNode;
 import jdk.nashorn.internal.ir.LexicalContext;
 import jdk.nashorn.internal.ir.Node;
+import jdk.nashorn.internal.ir.Statement;
+import jdk.nashorn.internal.ir.Symbol;
 import jdk.nashorn.internal.ir.visitor.NodeOperatorVisitor;
+import jdk.nashorn.internal.ir.visitor.NodeVisitor;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -74,17 +82,51 @@ public class ParserTest {
     @Test
     public void testParse() {
         try {
-            System.out.println("parse");
-            String input = readServerFile(new File("c:\\Projects\\JWeb\\www\\Controller\\indexController.jap"));
+
+            String input = readServerFile(new File("e:\\Projects\\JWeb\\www\\Controller\\indexController.jap"));
             ExpNode expResult = null;
             JWebParser result = new  JWebParser(input);
             FunctionNode fNode = result.parse();
             
                 //Logger.logMsg(Level.ALL.intValue(),);
-          System.out.println( fNode.getName());
-          System.out.println( fNode.getBody());
+         // System.out.println( fNode.getName());
+         // System.out.println( fNode.getBody());
           LexicalContext lc = new LexicalContext();
-         fNode.accept(new NodeOperatorVisitor(lc));
+         
+         fNode.accept(new NodeVisitor(lc) {
+
+                @Override
+                public boolean enterFunctionNode(FunctionNode functionNode) {
+                    
+              if( ! functionNode.isProgram() ) {
+                  
+                  if( functionNode.isAnonymous() ) {
+                      
+                        String name = ((IdentNode)functionNode.getIdent().accept(this)).getName();
+                        if( name.contains(":") ) {
+        				 
+                                                  System.out.println("<anonymous> FUNCTION_ICON");
+        				} else {
+        					  System.out.println(name +" METHOD_ICON");
+        				}
+  
+                
+                  } else 
+                  {
+                        System.out.println(((IdentNode)functionNode.getIdent().accept(this)).getName());
+                  }
+              }
+                    
+                    return super.enterFunctionNode(functionNode); //To change body of generated methods, choose Tools | Templates.
+                }
+         
+                
+                
+             
+         
+         });
+         Iterator<FunctionNode> sss = lc.getFunctions();
+         IdentNode ident = fNode.getIdent();
           
             // assertEquals(expResult, result);
             // TODO review the generated test code and remove the default call to fail.
