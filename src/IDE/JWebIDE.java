@@ -5,12 +5,11 @@
  */
 package IDE;
 
-import IDE.SyntaxTree.ASyntaxTree;
-import IDE.SyntaxTree.ASyntaxTree.STNode;
 import IDE.SyntaxTree.JWebParser;
 import IDE.autocomplite.AutocompliteContextFrame;
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -19,16 +18,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.JTextPane;
-import javax.swing.SwingWorker;
+import javax.swing.JToolTip;
 import javax.swing.text.AbstractDocument.BranchElement;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Caret;
-import javax.swing.text.DefaultCaret;
-import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
@@ -41,9 +38,9 @@ import javax.swing.text.TabStop;
 import javax.swing.text.Utilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
+import jdk.nashorn.api.scripting.AbstractJSObject;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import sun.nio.ch.DirectBuffer;
 
 /**
@@ -68,7 +65,7 @@ public class JWebIDE extends javax.swing.JFrame {
         Pattern numbers = Pattern.compile("\\b((?:(\\d+)?\\.)?[0-9]+|0x[0-9A-F]+)\\b");
         AutocompliteContextFrame autoCompliteFrame;
        JWebParser jwebNashornParser = new JWebParser();
-
+        DefaultMutableTreeNode objectTree =null;
 
          StyledDocument doc = null;
         Document document = null;
@@ -81,7 +78,7 @@ public class JWebIDE extends javax.swing.JFrame {
         
         initComponents();
         textLineNumber = new TextLineNumber(jTextPane1);
-        linePainter = new LinePainter(jTextPane1);
+   //    linePainter = new LinePainter(jTextPane1);
         this.jScrollPane3.setRowHeaderView(textLineNumber);
         // autoTextComplete = new  AutoTextComplete(jTextPane1);
         autoCompliteFrame = new AutocompliteContextFrame(jTextPane1);
@@ -92,7 +89,7 @@ public class JWebIDE extends javax.swing.JFrame {
         setTabs(jTextPane1,3);
         document = jTextPane1.getDocument();
         document.addDocumentListener(new EditorChangeListener(doc, jLabel1));
-        linePainter.setLighter(new Color(176,197,227));     
+    //  linePainter.setLighter(new Color(176,197,227));     
     }
 
      public void setTabs( JTextPane textPane, int charactersPerTab)
@@ -243,7 +240,7 @@ public class JWebIDE extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
         try {
-            jTextPane1.setText(readServerFile(new File("e:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
+            jTextPane1.setText(readServerFile(new File("c:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
                    updateTree();
 
         } catch (IOException ex) {
@@ -271,8 +268,8 @@ public class JWebIDE extends javax.swing.JFrame {
  
                String srcText = jTextPane1.getText();
                 if(!srcText.equals("")){
-                    
-                     DefaultMutableTreeNode objectTree = jwebNashornParser.createObjectTree(srcText);                                       
+                     JWebParser jwebNashorn = new JWebParser(srcText);
+                     objectTree = jwebNashorn.createObjectTree();                                       
                      DefaultTreeModel treeModel = new DefaultTreeModel(objectTree);      
                      jTree1.setVisible(false);
                      jTree1.setModel(treeModel);
@@ -287,8 +284,8 @@ public class JWebIDE extends javax.swing.JFrame {
     
     private void jTextPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextPane1KeyPressed
         
-                   updateTree();
-           
+                 //  updateTree();
+            int pos = jTextPane1.getCaretPosition();
        
                 if(((evt.getKeyCode() == KeyEvent.VK_DOWN)||
                     (evt.getKeyCode() == KeyEvent.VK_UP)||
@@ -302,13 +299,14 @@ public class JWebIDE extends javax.swing.JFrame {
             try {
 
                 
-                int pos = jTextPane1.getCaretPosition();
+               
                 if(pos==0) {
                    // evt.consume();
                     return;
                 };
-                int wordStart = Utilities.getPreviousWord(jTextPane1,pos );
-                String key = jTextPane1.getText().substring(wordStart,jTextPane1.getCaretPosition());
+                int wordStart = Utilities.getWordStart(jTextPane1,pos );
+                int wordEnd = Utilities.getWordEnd(jTextPane1,pos );
+                String key = jTextPane1.getText().substring(wordStart,wordEnd);
                 
                 
                 
@@ -382,15 +380,108 @@ public class JWebIDE extends javax.swing.JFrame {
         
        
         try {
-            int viewToModel = jTextPane1.viewToModel(evt.getPoint());
+          
             
           //  jTextPane1.setCaretPosition(viewToModel);
+            JTextPane jtp = (JTextPane) evt.getSource();
+            Point pt = new Point(evt.getX(), evt.getY());
+            int viewToModel = jtp.viewToModel(pt);
+           
             
-            String txt =  jTextPane1.getText();
-            int start = Utilities.getWordStart(jTextPane1, viewToModel);
-            int end = Utilities.getWordEnd(jTextPane1, viewToModel);
-            jLabel3.setText(""+viewToModel);
-           // jLabel3.setText(txt.substring(start, end));
+          //  jtp.setCaretPosition(viewToModel);
+            String txt =  jtp.getText();
+            int start  =  Utilities.getWordStart(jtp, viewToModel);
+            int end    =  Utilities.getWordEnd(jtp, viewToModel);
+            int len = end -start;
+            String toolTipText = "";
+            String word = jtp.getText(start, len);
+           // jLabel3.setText(""+viewToModel);
+            if(objectTree!=null){
+            Enumeration node = objectTree.preorderEnumeration();
+            while(node.hasMoreElements()){
+               DefaultMutableTreeNode obj = (DefaultMutableTreeNode)node.nextElement();
+//               if(obj!=null&&obj.getUserObject()!=null && !word.equals(" "))
+            //   if(obj.getUserObject().toString().contains(word)){
+                  
+                    if(obj!=null&&obj.getUserObject()!=null&&obj.getUserObject().getClass() == ScriptObjectMirror.class){
+                        
+                             String type = ((AbstractJSObject)obj.getUserObject()).getMember("type").toString();
+                                System.out.println(type);
+                                if(type.equals("Identifier")){
+                                String name = ((AbstractJSObject)obj.getUserObject()).getMember("name").toString();
+                                
+                                    if(name.equals(word)){
+                                        toolTipText =  "Идентификатор "+((AbstractJSObject)obj.getUserObject()).getMember("name").toString();
+                                        break;
+                                    }                             
+                                
+                                } else if(type.equals("ExpressionStatement")){
+                             
+                                  
+                                        AbstractJSObject expr = (AbstractJSObject) ((AbstractJSObject)obj.getUserObject()).getMember("expression");                                        
+                                        String op = (String) expr.getMember("operator");
+                                        AbstractJSObject left = (AbstractJSObject) expr.getMember("left");        
+                                        AbstractJSObject right = (AbstractJSObject) expr.getMember("right");    
+                                       String [] words = word.split("\\.");
+                                        boolean contin = true;
+                                        for(String word_l: words)
+                                        if(left.getMember("property").equals(word_l)){   
+                                            
+                                            if(left.getMember("type").equals("MemberExpression"))
+                                            {
+                                                toolTipText = "Выражение this."+left.getMember("property")+op;
+                                                
+                                                if(right.getMember("type").equals("Literal")){
+                                                
+                                                    toolTipText += "'"+right.getMember("value")+"'";
+                                                }
+                                                else if(right.getMember("type").equals("FunctionExpression")){
+                                                
+                                                      toolTipText += "function()"+(right.getMember("id")==null?" unnamed":right.getMember("id"));
+                                                    
+                                                }
+                                                
+                                            
+                                            
+                                            } else {
+                                                toolTipText = "Выражение "+left.getMember("property")+op+right.getMember("value");
+                                            }
+                                            
+                                            contin = false;
+                                              break;
+                                        }
+                                        
+                                      if(!contin) break;
+                                        
+                                }
+                                
+                                
+                                 
+                                
+                  
+                                
+                            } else {
+                 //  toolTipText = ""+obj.getUserObject();
+                    }
+                            
+                            
+           
+                   
+                
+              // }
+            }
+            
+            
+                               jLabel3.setText(toolTipText);
+                                JToolTip jtoolp =   jtp.createToolTip();          
+                                jtoolp.setBounds(evt.getX(), evt.getY(), 200, 50);
+                                jtoolp.setVisible(true);
+                                jtp.setToolTipText(toolTipText);
+            
+            }
+            
+            
+   
             
         } catch (BadLocationException ex) {
             Logger.getLogger(JWebIDE.class.getName()).log(Level.SEVERE, null, ex);

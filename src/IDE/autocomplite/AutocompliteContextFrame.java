@@ -247,7 +247,7 @@ public class AutocompliteContextFrame extends JWindow {
             if(rowNum == -1) return;
             String val = (String) this.jTable1.getModel().getValueAt(rowNum, 0);
             int pos = textComp.getCaretPosition();
-            int wordStart = Utilities.getPreviousWord(textComp,pos );
+            int wordStart = Utilities.getWordStart(textComp,pos );
             String key = textComp.getText().substring(wordStart,textComp.getCaretPosition());
             if(!"".equals(val) && val!=null){
                 if(key.equals(".")) wordStart++;

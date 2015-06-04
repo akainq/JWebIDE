@@ -7,7 +7,10 @@ package IDE.SyntaxTree;
 
 import IDE.SyntaxTree.types.FunctionDeclaration;
 import java.io.StringWriter;
+import static java.lang.System.out;
 import java.lang.reflect.Array;
+import java.util.List;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.script.ScriptEngineManager;
@@ -18,7 +21,15 @@ import jdk.nashorn.api.scripting.AbstractJSObject;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import jdk.nashorn.api.scripting.ScriptUtils;
+import jdk.nashorn.internal.codegen.Label;
 import jdk.nashorn.internal.ir.FunctionNode;
+import jdk.nashorn.internal.ir.IdentNode;
+import jdk.nashorn.internal.ir.LexicalContext;
+import jdk.nashorn.internal.ir.Node;
+import jdk.nashorn.internal.ir.ObjectNode;
+import jdk.nashorn.internal.ir.PropertyNode;
+import jdk.nashorn.internal.ir.Statement;
+import jdk.nashorn.internal.ir.visitor.NodeVisitor;
 import jdk.nashorn.internal.objects.Global;
 import jdk.nashorn.internal.runtime.Context;
 import jdk.nashorn.internal.runtime.ErrorManager;
@@ -80,14 +91,18 @@ public class JWebParser {
              DefaultMutableTreeNode root = new DefaultMutableTreeNode("");             
              getTree(RootBody,0,root);
              
-             return  root;
+             return root;
          } catch (ScriptException | NoSuchMethodException ex) {
              Logger.getLogger(JWebParser.class.getName()).log(Level.SEVERE, null, ex);
          }
          return null;
     }
     
-
+    public DefaultMutableTreeNode createObjectTree(){
+      return getTreeNode(new DefaultMutableTreeNode(""));
+    }
+    
+    
     public void getTree(AbstractJSObject node , int deep, DefaultMutableTreeNode rootNode){
   
              ScriptObjectMirror  child_scriptObjectMirror = null;
@@ -122,10 +137,10 @@ public class JWebParser {
                        }
                       if(key.equals("body"))
                       {
-                             getTree((ScriptObjectMirror)scriptObjectMirror, deep++,rootNode); 
-                             return;
-                      }
-                        child.setUserObject(key+" "+scriptObjectMirror);                                    
+                           //  getTree((ScriptObjectMirror)scriptObjectMirror, deep++,rootNode); 
+                           //  return;
+                      } else 
+                        child.setUserObject(scriptObjectMirror);                                    
                              child.setAllowsChildren(true);
                              rootNode.add(child);
                          
@@ -153,6 +168,84 @@ public class JWebParser {
              
        }
     
+    
+    public DefaultMutableTreeNode getTreeNode(DefaultMutableTreeNode rootNode){
+        
+    	Stack<DefaultMutableTreeNode> i = new Stack<>();    
+      //  DefaultMutableTreeNode subroot = new DefaultMutableTreeNode("subroot");
+      //  rootNode.add(subroot);
+        i.push(rootNode);
+         FunctionNode root = parse();
+             LexicalContext lc = new LexicalContext();
+         root.accept(new NodeVisitor(lc) {
+
+             
+                @Override
+                public boolean enterFunctionNode(FunctionNode functionNode) {
+
+                    if( ! functionNode.isProgram() ) {
+        			DefaultMutableTreeNode outlineItem;
+                                List<IdentNode> parameters = functionNode.visitParameters(this);
+        			if( functionNode.isAnonymous() ) {
+        				String name = ((IdentNode)functionNode.getIdent().accept(this)).getName();
+        				if( name.contains(":") ) {
+        					outlineItem = new DefaultMutableTreeNode("<anonymous>");
+                                                for(IdentNode param: parameters){
+                                                
+                                                }
+        				} else {
+        					outlineItem = new DefaultMutableTreeNode(name);
+                                                for(IdentNode param: parameters){
+                                                   outlineItem.setUserObject(outlineItem.getUserObject()+"("+param.getMostOptimisticType().getDescriptor()+")");
+                                                }
+        				}
+        			} else {
+        				outlineItem = new DefaultMutableTreeNode(((IdentNode)functionNode.getIdent().accept(this)).getName());
+                                             for(IdentNode param: parameters){
+                                                
+                                            }
+        			}
+
+        			i.peek().add(outlineItem);
+        			i.push(outlineItem);
+        		}
+
+                    return super.enterFunctionNode(functionNode); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public Node leaveFunctionNode(FunctionNode functionNode) {
+                        if( ! functionNode.isProgram() ) {
+                              i.pop();
+                        }
+                    return super.leaveFunctionNode(functionNode); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public Node leaveObjectNode(ObjectNode objectNode) {
+                    DefaultMutableTreeNode outlineItem = new DefaultMutableTreeNode("ttt");
+                    	i.peek().add(outlineItem);
+        		i.push(outlineItem);
+                    return super.leaveObjectNode(objectNode); //To change body of generated methods, choose Tools | Templates.
+                }
+
+                @Override
+                public boolean enterObjectNode(ObjectNode objectNode) {
+                       i.pop();
+                    return super.enterObjectNode(objectNode); //To change body of generated methods, choose Tools | Templates.
+                }
+
+              
+                
+             
+               
+                
+         
+         });
+        
+         return i.peek();
+    
+    }
     
   
 }
