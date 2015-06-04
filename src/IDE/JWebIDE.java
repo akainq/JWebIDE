@@ -26,6 +26,9 @@ import javax.swing.JTextPane;
 import javax.swing.SwingWorker;
 import javax.swing.text.AbstractDocument.BranchElement;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Caret;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
@@ -132,6 +135,7 @@ public class JWebIDE extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -156,6 +160,11 @@ public class JWebIDE extends javax.swing.JFrame {
         jTextPane1.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jTextPane1CaretUpdate(evt);
+            }
+        });
+        jTextPane1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                jTextPane1MouseMoved(evt);
             }
         });
         jTextPane1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -183,6 +192,8 @@ public class JWebIDE extends javax.swing.JFrame {
 
         jLabel2.setText("jLabel2");
 
+        jLabel3.setText("jLabel3");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -198,7 +209,9 @@ public class JWebIDE extends javax.swing.JFrame {
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 436, Short.MAX_VALUE)
+                        .addGap(173, 173, 173)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 229, Short.MAX_VALUE)
                         .addComponent(jLabel2)
                         .addGap(31, 31, 31))
                     .addGroup(layout.createSequentialGroup()
@@ -215,7 +228,8 @@ public class JWebIDE extends javax.swing.JFrame {
                     .addComponent(jButton1)
                     .addComponent(jButton2)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
@@ -229,7 +243,7 @@ public class JWebIDE extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
         try {
-            jTextPane1.setText(readServerFile(new File("c:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
+            jTextPane1.setText(readServerFile(new File("e:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
                    updateTree();
 
         } catch (IOException ex) {
@@ -361,6 +375,30 @@ public class JWebIDE extends javax.swing.JFrame {
            this.jLabel2.setText(""+(root2+1));
            
     }//GEN-LAST:event_jTextPane1CaretUpdate
+
+    private void jTextPane1MouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextPane1MouseMoved
+        
+      
+        
+       
+        try {
+            int viewToModel = jTextPane1.viewToModel(evt.getPoint());
+            
+          //  jTextPane1.setCaretPosition(viewToModel);
+            
+            String txt =  jTextPane1.getText();
+            int start = Utilities.getWordStart(jTextPane1, viewToModel);
+            int end = Utilities.getWordEnd(jTextPane1, viewToModel);
+            jLabel3.setText(""+viewToModel);
+           // jLabel3.setText(txt.substring(start, end));
+            
+        } catch (BadLocationException ex) {
+            Logger.getLogger(JWebIDE.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        
+    }//GEN-LAST:event_jTextPane1MouseMoved
     public static String readServerFile(File file) throws FileNotFoundException, IOException {
         
       FileInputStream inputStream = new FileInputStream(file);
@@ -414,6 +452,7 @@ public class JWebIDE extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextPane jTextPane1;

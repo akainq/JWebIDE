@@ -3,18 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/LinePainter.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/SyntaxTree/JWebParser.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/TextLineNumber.java</file>
-            <file>file:/C:/Projects/JavaApplication1/test/IDE/SyntaxTree/ParserTest.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/JavaScriptLexer.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/autocomplite/CompliteTableModel.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/JWebIDE.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/EditorChangeListener.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/SyntaxMatcher.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/autocomplite/AutocompliteContextFrame.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/SyntaxTree/OperMap.java</file>
-            <file>file:/C:/Projects/JavaApplication1/src/IDE/SyntaxTree/OpAssociativity.java</file>
+            <file>file:/E:/Projects/JWebIDE/test/IDE/SyntaxTree/IParser.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/SyntaxTree/CodeObjectTree.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/SyntaxTree/types/IJSObject.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/JWebIDE.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/SyntaxTree/ASyntaxTree.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/SyntaxTree/JWebParser.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/SyntaxTree/types/JSObjectBuilder.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/LinePainter.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/SyntaxTree/types/ID.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/autocomplite/AutocompliteContextFrame.java</file>
+            <file>file:/E:/Projects/JWebIDE/src/IDE/TextLineNumber.java</file>
         </group>
     </open-files>
 </project-private>
