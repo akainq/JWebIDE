@@ -5,10 +5,7 @@
  */
 package IDE.SyntaxTree;
 
-import IDE.SyntaxTree.types.FunctionDeclaration;
 import java.io.StringWriter;
-import static java.lang.System.out;
-import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Stack;
 import java.util.logging.Level;
@@ -16,19 +13,15 @@ import java.util.logging.Logger;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.tree.DefaultMutableTreeNode;
-import jdk.internal.org.objectweb.asm.ClassVisitor;
 import jdk.nashorn.api.scripting.AbstractJSObject;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
-import jdk.nashorn.api.scripting.ScriptUtils;
-import jdk.nashorn.internal.codegen.Label;
+import jdk.nashorn.internal.codegen.types.Type;
 import jdk.nashorn.internal.ir.FunctionNode;
 import jdk.nashorn.internal.ir.IdentNode;
 import jdk.nashorn.internal.ir.LexicalContext;
 import jdk.nashorn.internal.ir.Node;
 import jdk.nashorn.internal.ir.ObjectNode;
-import jdk.nashorn.internal.ir.PropertyNode;
-import jdk.nashorn.internal.ir.Statement;
 import jdk.nashorn.internal.ir.visitor.NodeVisitor;
 import jdk.nashorn.internal.objects.Global;
 import jdk.nashorn.internal.runtime.Context;
@@ -53,6 +46,7 @@ public class JWebParser {
     public JWebParser(String source) {
  
       strSource = source;
+     
  
          Options opt = new Options("nashorn");
              opt.set("anon.functions", true);
@@ -175,6 +169,7 @@ public class JWebParser {
       //  DefaultMutableTreeNode subroot = new DefaultMutableTreeNode("subroot");
       //  rootNode.add(subroot);
         i.push(rootNode);
+      
          FunctionNode root = parse();
              LexicalContext lc = new LexicalContext();
          root.accept(new NodeVisitor(lc) {
@@ -190,20 +185,30 @@ public class JWebParser {
         				String name = ((IdentNode)functionNode.getIdent().accept(this)).getName();
         				if( name.contains(":") ) {
         					outlineItem = new DefaultMutableTreeNode("<anonymous>");
-                                                for(IdentNode param: parameters){
-                                                
+                                                outlineItem = new DefaultMutableTreeNode(name);
+                                                String uobj = outlineItem.getUserObject()+"(";
+                                                for(IdentNode param: parameters){                                                    
+                                                 Type t = param.getMostOptimisticType();                                                    
+                                                 uobj +=t.toString()+" "+param.getName();
                                                 }
+                                                outlineItem.setUserObject(uobj+")");
         				} else {
         					outlineItem = new DefaultMutableTreeNode(name);
-                                                for(IdentNode param: parameters){
-                                                   outlineItem.setUserObject(outlineItem.getUserObject()+"("+param.getMostOptimisticType().getDescriptor()+")");
+                                                String uobj = outlineItem.getUserObject()+"(";
+                                                for(IdentNode param: parameters){                                                    
+                                                 Type t = param.getMostOptimisticType();                                                    
+                                                 uobj +=t.toString()+" "+param.getName();
                                                 }
+                                                outlineItem.setUserObject(uobj+")");
         				}
         			} else {
         				outlineItem = new DefaultMutableTreeNode(((IdentNode)functionNode.getIdent().accept(this)).getName());
-                                             for(IdentNode param: parameters){
-                                                
-                                            }
+                                                String uobj = outlineItem.getUserObject()+"(";
+                                                for(IdentNode param: parameters){                                                    
+                                                 Type t = param.getMostOptimisticType();                                                    
+                                                 uobj +=t.toString()+" "+param.getName()+" ";
+                                                }
+                                                outlineItem.setUserObject(uobj+")");
         			}
 
         			i.peek().add(outlineItem);
@@ -232,6 +237,7 @@ public class JWebParser {
                 @Override
                 public boolean enterObjectNode(ObjectNode objectNode) {
                        i.pop();
+                       
                     return super.enterObjectNode(objectNode); //To change body of generated methods, choose Tools | Templates.
                 }
 
@@ -242,7 +248,7 @@ public class JWebParser {
                 
          
          });
-        
+         // i.pop();
          return i.peek();
     
     }

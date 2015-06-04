@@ -9,6 +9,7 @@ import IDE.SyntaxTree.JWebParser;
 import IDE.autocomplite.AutocompliteContextFrame;
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.MediaTracker;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
@@ -22,8 +23,11 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.swing.ImageIcon;
 import javax.swing.JTextPane;
 import javax.swing.JToolTip;
+import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.text.AbstractDocument.BranchElement;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
@@ -37,8 +41,10 @@ import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 import javax.swing.text.Utilities;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import jdk.nashorn.api.scripting.AbstractJSObject;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import sun.nio.ch.DirectBuffer;
@@ -66,7 +72,7 @@ public class JWebIDE extends javax.swing.JFrame {
         AutocompliteContextFrame autoCompliteFrame;
        JWebParser jwebNashornParser = new JWebParser();
         DefaultMutableTreeNode objectTree =null;
-
+   DefaultTreeCellRenderer renderer =   new DefaultTreeCellRenderer();
          StyledDocument doc = null;
         Document document = null;
     /**
@@ -78,7 +84,7 @@ public class JWebIDE extends javax.swing.JFrame {
         
         initComponents();
         textLineNumber = new TextLineNumber(jTextPane1);
-   //    linePainter = new LinePainter(jTextPane1);
+       linePainter = new LinePainter(jTextPane1);
         this.jScrollPane3.setRowHeaderView(textLineNumber);
         // autoTextComplete = new  AutoTextComplete(jTextPane1);
         autoCompliteFrame = new AutocompliteContextFrame(jTextPane1);
@@ -89,9 +95,34 @@ public class JWebIDE extends javax.swing.JFrame {
         setTabs(jTextPane1,3);
         document = jTextPane1.getDocument();
         document.addDocumentListener(new EditorChangeListener(doc, jLabel1));
-    //  linePainter.setLighter(new Color(176,197,227));     
+      linePainter.setLighter(new Color(176,197,227));     
+        
+        ImageIcon leafIcon = new ImageIcon("E:\\Projects\\JWebIDE\\src\\main\\resources\\images\\stock_function_autopilot.png");
+        if(leafIcon.getImageLoadStatus() == MediaTracker.COMPLETE)
+        {
+        UIManager.put("Tree.closedIcon", leafIcon);
+        UIManager.put("Tree.openIcon", leafIcon);
+        UIManager.put("Tree.leafIcon", leafIcon);
+        } else {
+          Logger.getGlobal().severe("error "+leafIcon.getImageLoadStatus());
+        }
+      //  jTree1 = new JTree();
+        DefaultTreeCellRenderer dtr = new DefaultTreeCellRenderer();
+        dtr.setClosedIcon(leafIcon);
+        //dtr.setDisabledIcon(leafIcon);
+        dtr.setOpenIcon(leafIcon);
+        dtr.setLeafIcon(leafIcon);
+       
+        jTree1.setCellRenderer(dtr);
+        jTree1.setRootVisible(false);
     }
 
+    protected static ImageIcon createImageIcon(String path) {
+        java.net.URL imgURL = JWebIDE.class.getResource(path);                
+        return new ImageIcon(imgURL);
+    
+    }
+    
      public void setTabs( JTextPane textPane, int charactersPerTab)
      {
           FontMetrics fm = textPane.getFontMetrics( textPane.getFont() );
@@ -123,34 +154,41 @@ public class JWebIDE extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jSplitPane3 = new javax.swing.JSplitPane();
+        jSplitPane2 = new javax.swing.JSplitPane();
+        jTabbedPane2 = new javax.swing.JTabbedPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTree1 = new javax.swing.JTree();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
-        jLabel1 = new javax.swing.JLabel();
-        jToolBar1 = new javax.swing.JToolBar();
+        jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jToolBar1 = new javax.swing.JToolBar();
+        jButton2 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jSplitPane1.setDividerLocation(30);
+        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+
+        jSplitPane3.setDividerLocation(600);
+        jSplitPane3.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+
+        jSplitPane2.setDividerLocation(150);
+
         jScrollPane1.setViewportView(jTree1);
 
-        jButton1.setText("jButton1");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+        jTabbedPane2.addTab("Objects Tree", jScrollPane1);
 
-        jButton2.setText("jButton2");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
+        jSplitPane2.setLeftComponent(jTabbedPane2);
 
         jScrollPane3.setDoubleBuffered(true);
 
@@ -180,59 +218,82 @@ public class JWebIDE extends javax.swing.JFrame {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTextPane1KeyPressed(evt);
             }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextPane1KeyReleased(evt);
+            }
         });
         jScrollPane3.setViewportView(jTextPane1);
 
-        jLabel1.setText("0");
+        jTabbedPane1.addTab("default", jScrollPane3);
 
-        jToolBar1.setRollover(true);
+        jSplitPane2.setRightComponent(jTabbedPane1);
+
+        jSplitPane3.setLeftComponent(jSplitPane2);
 
         jLabel2.setText("jLabel2");
 
         jLabel3.setText("jLabel3");
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel1)
-                        .addGap(173, 173, 173)
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 229, Short.MAX_VALUE)
-                        .addComponent(jLabel2)
-                        .addGap(31, 31, 31))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane3)
-                        .addContainerGap())))
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        jLabel1.setText("0");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 797, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 797, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 797, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(17, 17, 17)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3))
-                .addContainerGap())
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jLabel3)
+                .addGap(0, 0, 0)
+                .addComponent(jLabel2)
+                .addGap(0, 0, 0)
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jSplitPane3.setRightComponent(jPanel1);
+
+        jSplitPane1.setRightComponent(jSplitPane3);
+
+        jToolBar1.setRollover(true);
+
+        jButton2.setText("Test");
+        jButton2.setFocusable(false);
+        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton2);
+
+        jButton1.setText("Load Script");
+        jButton1.setFocusable(false);
+        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton1);
+
+        jSplitPane1.setLeftComponent(jToolBar1);
+
+        getContentPane().add(jSplitPane1, java.awt.BorderLayout.PAGE_START);
+
+        jMenu1.setText("File");
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Edit");
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -240,7 +301,7 @@ public class JWebIDE extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
         try {
-            jTextPane1.setText(readServerFile(new File("c:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
+            jTextPane1.setText(readServerFile(new File("e:\\Projects\\JWeb\\www\\Controller\\indexController.jap")));
                    updateTree();
 
         } catch (IOException ex) {
@@ -262,10 +323,22 @@ public class JWebIDE extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_jButton2ActionPerformed
-
+  private void expandAll(JTree tree, TreePath parent) {
+    TreeNode node = (TreeNode) parent.getLastPathComponent();
+    if (node.getChildCount() >= 0) {
+      for (Enumeration e = node.children(); e.hasMoreElements();) {
+        TreeNode n = (TreeNode) e.nextElement();
+        TreePath path = parent.pathByAddingChild(n);
+        expandAll(tree, path);
+      }
+    }
+    tree.expandPath(parent);
+    // tree.collapsePath(parent);
+  }
+  
     private void updateTree(){
-        
- 
+     
+     
                String srcText = jTextPane1.getText();
                 if(!srcText.equals("")){
                      JWebParser jwebNashorn = new JWebParser(srcText);
@@ -277,14 +350,15 @@ public class JWebIDE extends javax.swing.JFrame {
                      jTree1.repaint();
                      ((DefaultTreeModel) jTree1.getModel()).reload();
                       jTree1.setVisible(true);
+                    expandAll(jTree1, new TreePath(objectTree));
                   
                 }
                    
     }
     
     private void jTextPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextPane1KeyPressed
-        
-                 //  updateTree();
+    
+                   
             int pos = jTextPane1.getCaretPosition();
        
                 if(((evt.getKeyCode() == KeyEvent.VK_DOWN)||
@@ -490,6 +564,23 @@ public class JWebIDE extends javax.swing.JFrame {
         
         
     }//GEN-LAST:event_jTextPane1MouseMoved
+
+    private void jTextPane1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextPane1KeyReleased
+        // TODO add your handling code here:
+        
+            try{
+            
+                   updateTree();
+                   
+                   
+        } catch(Exception e){
+            
+          //  Object obj = e.getEcmaError();
+            Logger.getGlobal().severe(e.getMessage()+" ");
+        
+        }
+        
+    }//GEN-LAST:event_jTextPane1KeyReleased
     public static String readServerFile(File file) throws FileNotFoundException, IOException {
         
       FileInputStream inputStream = new FileInputStream(file);
@@ -544,8 +635,17 @@ public class JWebIDE extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JSplitPane jSplitPane2;
+    private javax.swing.JSplitPane jSplitPane3;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JTree jTree1;
