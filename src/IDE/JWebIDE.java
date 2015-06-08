@@ -6,7 +6,7 @@
 package IDE;
 
 import IDE.SyntaxTree.JWebParser;
-import IDE.autocomplite.AutocompliteContextFrame;
+import IDE.autocomplete.AutocompleteContextFrame;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.MediaTracker;
@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
+import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
@@ -47,6 +48,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import jdk.nashorn.api.scripting.AbstractJSObject;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import org.apache.felix.framework.FrameworkFactory;
 import sun.nio.ch.DirectBuffer;
 
 /**
@@ -69,7 +71,7 @@ public class JWebIDE extends javax.swing.JFrame {
         Pattern functionCall = Pattern.compile("\\b([\\w]+)\\s*\\(");
         Pattern brackets = Pattern.compile("\\{|\\}|\\(|\\)|\\[|\\]");
         Pattern numbers = Pattern.compile("\\b((?:(\\d+)?\\.)?[0-9]+|0x[0-9A-F]+)\\b");
-        AutocompliteContextFrame autoCompliteFrame;
+        AutocompleteContextFrame autoCompliteFrame;
        JWebParser jwebNashornParser = new JWebParser();
         DefaultMutableTreeNode objectTree =null;
    DefaultTreeCellRenderer renderer =   new DefaultTreeCellRenderer();
@@ -87,7 +89,7 @@ public class JWebIDE extends javax.swing.JFrame {
        linePainter = new LinePainter(jTextPane1);
         this.jScrollPane3.setRowHeaderView(textLineNumber);
         // autoTextComplete = new  AutoTextComplete(jTextPane1);
-        autoCompliteFrame = new AutocompliteContextFrame(jTextPane1);
+        autoCompliteFrame = new AutocompleteContextFrame(jTextPane1);
         painter = new DefaultHighlighter();
        
                 
@@ -98,6 +100,8 @@ public class JWebIDE extends javax.swing.JFrame {
       linePainter.setLighter(new Color(176,197,227));     
         
         ImageIcon leafIcon = new ImageIcon("E:\\Projects\\JWebIDE\\src\\main\\resources\\images\\stock_function_autopilot.png");
+        ImageIcon logo = new ImageIcon("E:\\Projects\\JWebIDE\\src\\main\\resources\\images\\logo.png");
+        this.setIconImage(logo.getImage());
         if(leafIcon.getImageLoadStatus() == MediaTracker.COMPLETE)
         {
         UIManager.put("Tree.closedIcon", leafIcon);
@@ -115,6 +119,9 @@ public class JWebIDE extends javax.swing.JFrame {
        
         jTree1.setCellRenderer(dtr);
         jTree1.setRootVisible(false);
+        new FrameworkFactory().newFramework(null).
+     
+         
     }
 
     protected static ImageIcon createImageIcon(String path) {
@@ -154,6 +161,7 @@ public class JWebIDE extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jMenuItem1 = new javax.swing.JMenuItem();
         jToolBar1 = new javax.swing.JToolBar();
         jButton2 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
@@ -172,6 +180,8 @@ public class JWebIDE extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
+
+        jMenuItem1.setText("jMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -619,6 +629,7 @@ public class JWebIDE extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package IDE.autocomplite;
+package IDE.autocomplete;
 
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
@@ -12,11 +12,11 @@ import javax.swing.table.TableModel;
  *
  * @author Aleksey
  */
-public class CompliteTableModel implements TableModel {
+public class CompleteTableModel implements TableModel {
 
     String [] dataArray;
      
-    public CompliteTableModel(String [] data) {
+    public CompleteTableModel(String [] data) {
         this.dataArray = data;
     }
 

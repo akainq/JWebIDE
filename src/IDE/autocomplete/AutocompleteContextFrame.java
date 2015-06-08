@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package IDE.autocomplite;
+package IDE.autocomplete;
 
 import java.awt.AWTException;
 import java.awt.Robot;
@@ -31,14 +31,14 @@ import javax.swing.text.Utilities;
  *
  * @author kuznetsov
  */
-public class AutocompliteContextFrame extends JWindow {
+public class AutocompleteContextFrame extends JWindow {
     
     JTextComponent textComp;
     JScrollPane jScrollPane1;
     JTable  jTable1;
-    AutocompliteContextFrame me;
+    AutocompleteContextFrame me;
     int CurrentRowSelection = 0;
-    public AutocompliteContextFrame(JTextComponent textComp) {
+    public AutocompleteContextFrame(JTextComponent textComp) {
         
         
            super();
@@ -215,7 +215,7 @@ public class AutocompliteContextFrame extends JWindow {
         
     public void SetListData(String [] list) {
      
-        jTable1.setModel(new CompliteTableModel(list));
+        jTable1.setModel(new CompleteTableModel(list));
      
     }
     
@@ -257,7 +257,7 @@ public class AutocompliteContextFrame extends JWindow {
                 textComp.setCaretPosition(wordStart+val.length());
             }
         } catch (BadLocationException ex) {
-            Logger.getLogger(AutocompliteContextFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AutocompleteContextFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
          
          
